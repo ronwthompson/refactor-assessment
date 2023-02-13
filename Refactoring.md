@@ -9,3 +9,5 @@ You've been asked to refactor the function `deterministicPartitionKey` in [`dpk.
 You will be graded on the exhaustiveness and quality of your unit tests, the depth of your refactor, and the level of insight into your thought process provided by the written explanation.
 
 ## Your Explanation Here
+
+The nested if statements are difficult to follow from beginning to end. We can reduce the number of branching paths by isolating a few of them in the beginning. For example, we don't need to go through the whole flow chart if no event is found. Additionally, we just return hash from the event if no partitionKey exists.In the rest of the function, we make simple checks to update the candidatevariable to ensure it meets our requirements (is a string, is within the max length) before finishing. I considered using a switch statement instead but wewant to make decisions on different properties of our event, which a switch doesnot support.
