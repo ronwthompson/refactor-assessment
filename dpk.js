@@ -1,5 +1,9 @@
 const crypto = require("crypto");
 
+const createNewHash = (base) => {
+  return crypto.createHash("sha3-512").update(base).digest("hex")
+}
+
 exports.deterministicPartitionKey = (event) => {
   const TRIVIAL_PARTITION_KEY = "0";
   const MAX_PARTITION_KEY_LENGTH = 256;
@@ -7,22 +11,22 @@ exports.deterministicPartitionKey = (event) => {
   if (!event) return TRIVIAL_PARTITION_KEY
 
   if (!event.partitionKey) {
-    return crypto.createHash("sha3-512").update(JSON.stringify(event)).digest("hex");
+    return createNewHash(JSON.stringify(event));
   }
 
-  let candidate;
+  let keyToReturn;
 
   if (typeof event.partitionKey !== "string") {
-    candidate = JSON.stringify(event.partitionKey);
+    keyToReturn = JSON.stringify(event.partitionKey);
   } else {
-    candidate = event.partitionKey;
+    keyToReturn = event.partitionKey;
   }
 
-  if (candidate.length > MAX_PARTITION_KEY_LENGTH) {
-    return crypto.createHash("sha3-512").update(candidate).digest("hex");
+  if (keyToReturn.length > MAX_PARTITION_KEY_LENGTH) {
+    return createNewHash(keyToReturn);
   }
 
-  return candidate
+  return keyToReturn
 };
 
 // Refactoring Notes:
@@ -35,4 +39,5 @@ exports.deterministicPartitionKey = (event) => {
 // variable to ensure it meets our requirements (is a string, is within the max 
 // length) before finishing. I considered using a switch statement instead but we
 // want to make decisions on different properties of our event, which a switch does
-// not support.
+// not support. I pulled out the crypto hashing because it was quite wordy and also
+// renamed candidate to keyToReturn.
